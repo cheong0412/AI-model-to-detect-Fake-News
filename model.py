@@ -127,15 +127,15 @@ def build_vocab(corpus, n_vocab, special_tokens, save_path=None, save_path_txt=N
     if save_path:
         with open(save_path, "wb") as f:
             pickle.dump(vocab, f)
-        print(f"✅ Vocab 저장 완료 (pickle): {save_path}")
+        print(f"Vocab 저장 완료 (pickle): {save_path}")
 
     if save_path_txt:
         with open(save_path_txt, "w", encoding="utf-8") as f:
             for token in vocab:
                 f.write(f"{token}\n")
-        print(f"✅ Vocab 저장 완료 (txt): {save_path_txt}")
+        print(f"Vocab 저장 완료 (txt): {save_path_txt}")
 
-    print(f"📦 최종 vocab 크기: {len(vocab)}개")
+    print(f"최종 vocab 크기: {len(vocab)}개")
     return vocab
 
 
@@ -155,11 +155,9 @@ import os
 VOCAB_PATH = "vocab2.pkl"
 
 if os.path.exists(VOCAB_PATH):
-    print("📥 저장된 vocab 불러오는 중...")
     with open(VOCAB_PATH, "rb") as f:
         vocab = pickle.load(f)
 else:
-    print("🛠️ vocab 새로 생성 중...")
     vocab = build_vocab(
         corpus=train_tokens,
         n_vocab=80000,
@@ -245,7 +243,7 @@ optimizer = optim.RMSprop(classifier.parameters(), lr=0.001, weight_decay=1e-5) 
 
 # -------------------------------------------------------------------------------------------------------
 
-# 6.26 모델 학습 및 테스트 -> pt 저장 필요 (에포크 약 10)
+# 6.26 모델 학습 및 테스트 -> pt 저장 (에포크 약 10)
 def train(model, datasets, criterion, optimizer, device, interval=100):
     model.train()
     losses = list()
@@ -265,20 +263,18 @@ def train(model, datasets, criterion, optimizer, device, interval=100):
         loss.backward()
         optimizer.step()
 
-        # 예측값 구하기
-        yhat = torch.sigmoid(logits) > 0.5  # 이진 분류라면 sigmoid 사용
-
+        # 예측값 구하기 -> 이진 분류라서 sigmoid 사용
+        yhat = torch.sigmoid(logits) > 0.5
         # 정확도 계산
-        corrects += torch.sum(yhat == labels).item()  # 맞춘 예측의 개수를 누적
-        total += labels.size(0)  # 총 샘플 개수
+        corrects += torch.sum(yhat == labels).item()
+        total += labels.size(0)
 
-        # 100번마다 출력
         if step % interval == 0:
             accuracy = corrects / total  # 정확도 계산
             print(f"Step {step}, Train Loss: {np.mean(losses)}, Train Accuracy: {accuracy * 100:.2f}%")
 
     print(f"Finished epoch with total {len(datasets)} samples.")
-    return model  # 모델 반환
+    return model
 
 
 def test(model, datasets, criterion, device):
@@ -314,7 +310,7 @@ for epoch in range(epochs):
     losses = []
     corrects = 0
     total = 0
-    processed_samples = 0  # 처리된 데이터 수를 추적하는 변수
+    processed_samples = 0
 
     for step, (input_ids, labels) in enumerate(train_loader):
         input_ids = input_ids.to(device)
@@ -329,8 +325,8 @@ for epoch in range(epochs):
         optimizer.step()
 
         # 예측값 구하기
-        yhat = torch.sigmoid(logits) > 0.5  # 이진 분류라면 sigmoid 사용
-
+        yhat = torch.sigmoid(logits) > 0.5
+        
         # 정확도 계산
         corrects += torch.sum(yhat == labels).item()
         total += labels.size(0)
@@ -338,7 +334,6 @@ for epoch in range(epochs):
         # 배치마다 처리된 데이터 수 추적
         processed_samples += labels.size(0)
 
-        # 100번마다 출력
         if step % interval == 0:
             accuracy = corrects / total  # 정확도 계산
             print(f"Step {step}, Train Loss: {np.mean(losses)}, Train Accuracy: {accuracy * 100:.2f}%")
@@ -353,5 +348,6 @@ for epoch in range(epochs):
     save_path = f"model_epoch_{epoch+1}_accuracy_{accuracy:.4f}.pt"
     torch.save(classifier.state_dict(), save_path)
     print(f"Model saved to {save_path}")
+
 
 # -------------------------------------------------------------------------------------------------------
