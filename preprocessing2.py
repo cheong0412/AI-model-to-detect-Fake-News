@@ -30,18 +30,16 @@ def preprocess_and_save(df, stopwords_path, output_csv_path, text_columns=['titl
 
     # 3. 전처리 수행 (1000행마다 출력)
     for col in text_columns:
-        print(f"🔧 '{col}' 전처리 중...")
         processed_col = []
         for i, text in enumerate(df[col]):
             tokens = extract(text)
             processed_col.append(tokens)  # 토큰화된 결과를 리스트로 저장
             if (i + 1) % 1000 == 0:
-                print(f"  ✅ {col} 처리 중: {i + 1} / {len(df)}")
         df[col] = processed_col  # 전처리된 리스트를 열에 저장
 
     # 4. 저장
     df.to_csv(output_csv_path, index=False, encoding='utf-8-sig')
-    print(f"\n✅ 전처리 완료 & 저장됨 → {output_csv_path}")
+    print(f"\n전처리 완료 및 파일 저장 {output_csv_path}")
 
     return df
 
@@ -56,3 +54,4 @@ output_file_test = 'fakenews_preprocessed_test2_.csv'
 # 함수 실행
 # fakenews_train_pd = preprocess_and_save(fakenews_train_pd, stopwords_path=stopwords_file, output_csv_path=output_file_train)
 fakenews_test_pd = preprocess_and_save(fakenews_test_pd, stopwords_path=stopwords_file, output_csv_path=output_file_test)
+
